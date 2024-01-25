@@ -1,6 +1,6 @@
 {
-  "name": "kinde-auth-nestjs",
-  "version": "2.2.0",
+  "name": "@amsame/kinde-auth-nestjs",
+  "version": "1.0.0",
   "description": "Kinde Auth module for NestJS framework",
   "author": {
     "name": "Amine Yagoub",
@@ -22,9 +22,8 @@
     "nestjs",
     "kinde-auth-nestjs"
   ],
-  "source": "lib/index.ts",
+  "source": "src/index.ts",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
@@ -36,7 +35,8 @@
     "prepare": "is-ci || husky install",
     "build": "tsc && npm run build:index",
     "build:index": "rimraf ./index.js ./index.d.ts && tsc -d --skipLibCheck ./index.ts",
-    "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write && git status",
+    "format": "prettier src/**/*.ts --ignore-path ./.prettierignore --write",
+    "lint": "eslint --ext .ts src/**/*.ts --fix",
     "prepublishOnly": "npm run format && npm run build",
     "postversion": "git push && git push --tags",
     "postinstall": "is-ci || husky install",
@@ -44,17 +44,22 @@
     "postpack": "pinst --enable"
   },
   "dependencies": {
-    "@kinde-oss/kinde-nodejs-sdk": "^1.2.3",
-    "rxjs": "^7.8.1"
+    "cookie": "^0.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "reflect-metadata": "^0.2.1",
+    "tslib": "^2.6.0"
   },
   "peerDependencies": {
     "@nestjs/common": ">=9.0.0",
-    "@nestjs/core": ">=9.0.0"
+    "@nestjs/core": ">=9.0.0",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/common": "^10.2.8",
     "@nestjs/core": "^10.2.8",
     "@nestjs/testing": "^10.2.8",
+    "@types/cookie": "^0.6.0",
     "@types/jest": "^29.5.7",
     "@types/node": "^20.8.10",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
@@ -88,8 +93,8 @@
   },
   "lint-staged": {
     "*": [
-      "npm run type-check",
-      "npm run format:write --uncommitted"
+      "npm run format --uncommitted",
+      "npm run lint --uncommitted"
     ]
   }
 }
