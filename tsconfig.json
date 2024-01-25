@@ -5,15 +5,15 @@
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
-    "rootDir": "lib",
+    "rootDir": "src",
     "skipLibCheck": true,
     "declaration": true,
     "sourceMap": false,
     "noImplicitAny": true,
     "esModuleInterop": true,
     "strict": true,
-    "module": "commonjs"
+    "module": "commonjs",
   },
-  "include": ["lib/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "index.d.ts"],
+  "exclude": ["node_modules"],
 }
