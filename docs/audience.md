@@ -21,5 +21,14 @@ The token can then be used to make a request from the front-end to the back-end,
   KINDE_AUDIENCE=<your-audience>
   ```
 
+  example of JavaScript SDK
+
+  ```bash
+  const kinde = await createKindeClient({
+    audience: "<your-audience>"
+    ...
+  });
+  ```
+
 - select <b>Applications</b> in the left menu.
 - Activate the connection for each application that uses the API and click save.

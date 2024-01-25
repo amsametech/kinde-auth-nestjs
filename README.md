@@ -2,9 +2,9 @@
   <a href="https://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 <p align="center">
-<h1 align="center"> Kinde Auth Nestjs</h1>
+<h1 align="center"> Kinde Auth NestJs</h1>
 
-A Nestjs Module to validate your [Kinde](https://kinde.com) JSON Web Tokens
+A NestJs Module to validate your [Kinde](https://kinde.com) JSON Web Tokens
 
 ![node-current](https://img.shields.io/node/v/@amsame/kinde-auth-nestjs?style=flat)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
