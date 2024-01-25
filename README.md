@@ -12,7 +12,7 @@ A Nestjs Module to validate your [Kinde](https://kinde.com) JSON Web Tokens
 
 ## Usage
 
-If you are using a mobile or front-end Kinde SDK and want to protect your Nestjs back-end APIs, this Module is relevant for you.
+If you are using a mobile or front-end Kinde SDK and want to protect your NestJs back-end APIs, this Module is relevant for you.
 
 - ### Install the module
 
@@ -20,15 +20,15 @@ If you are using a mobile or front-end Kinde SDK and want to protect your Nestjs
 npm i @amsame/kinde-auth-nestjs
 ```
 
-- ### Set the envirements
-  kinde supports multi-domain authentication where the primary domain is the same, but there are different Nestjs services running in different subdomains.
-  For example. service1.yourdomain.com, service2.yourdomain.com, so make sure to set this envirement in your kinde SDK
+- ### Set the environments
+  kinde supports multi-domain authentication where the primary domain is the same, but there are different NestJs services running in different subdomains.
+  For example. service1.yourdomain.com, service2.yourdomain.com, so make sure to set this environment in your kinde SDK
 
 ```bash
 KINDE_COOKIE_DOMAIN=.yourdomain.com
 ```
 
-To run this module, you will need to add the following environment variables to your Nestjs .env file
+To run this module, you will need to add the following environment variables to your NestJs .env file
 
 ```bash
 KINDE_DOMAIN=https://<your-subdomain>.kinde.com
