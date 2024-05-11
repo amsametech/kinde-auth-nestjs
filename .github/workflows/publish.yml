@@ -1,8 +1,5 @@
 name: Bump version and publish to NPM
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
