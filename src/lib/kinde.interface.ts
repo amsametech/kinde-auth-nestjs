@@ -77,9 +77,11 @@ export interface HasuraRolesEntity {
 }
 
 export type IKindeUser = {
-  family_name: string | null;
-  given_name: string | null;
-  picture: string | null;
-  email: string;
   id: string;
+  preferred_email: string;
+  username: string;
+  provided_id: string;
+  last_name: string;
+  first_name: string;
+  picture: string;
 };

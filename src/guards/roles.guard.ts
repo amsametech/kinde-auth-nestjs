@@ -7,6 +7,7 @@ import * as cookie from 'cookie';
 import { Reflector } from '@nestjs/core';
 import { AbstractGuard } from './abstract.guard';
 import { KindeRoles } from '../decorators/roles.decorator';
+import { KINDE_ACCESS_TOKEN } from '../lib/kinde.constant';
 
 @Injectable()
 export class RolesGuard extends AbstractGuard {
@@ -22,7 +23,7 @@ export class RolesGuard extends AbstractGuard {
       }
       const request = context.switchToHttp().getRequest();
       const cookies = cookie.parse(request.headers.cookie || '');
-      const decoded = await this.verifyToken(cookies['access_token']);
+      const decoded = await this.verifyToken(cookies[KINDE_ACCESS_TOKEN]);
       if (!decoded) {
         throw new UnauthorizedException();
       }
