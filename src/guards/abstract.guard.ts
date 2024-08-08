@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { getEnvSafely } from '../lib/kinde.factory';
 import { KINDE_ACCESS_TOKEN, KINDE_DOMAIN_URL } from '../lib/kinde.constant';
+import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 
 type TokenCallback = (err: Error | null, key?: string) => void;
 
@@ -59,12 +60,26 @@ export abstract class AbstractGuard implements CanActivate {
   protected async decodeToken(
     context: ExecutionContext,
   ): Promise<KindePayload> {
-    const request = context.switchToHttp().getRequest();
+    let request: Request & {
+      headers: { cookie: string; authorization: string };
+    };
+    if (context.getType<GqlContextType>() === 'graphql') {
+      const graphqlCtx = GqlExecutionContext.create(context);
+      request = graphqlCtx.getContext().req;
+    } else {
+      request = context.switchToHttp().getRequest();
+    }
+    if (!request?.headers?.cookie && !request?.headers?.authorization) {
+      throw new Error('Expected either a cookie or authorization header');
+    }
     const cookies = cookie.parse(request.headers.cookie || '');
     let token = cookies[KINDE_ACCESS_TOKEN] ?? '';
     const authHeader = request.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7);
+    }
+    if (!token) {
+      throw new Error('Expected a token in the cookie or authorization header');
     }
     const decoded = await this.verifyToken(token);
     if (!decoded) {
