@@ -1,6 +1,6 @@
 {
   "name": "@amsame/kinde-auth-nestjs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Kinde Auth module for NestJS framework",
   "author": {
     "name": "Amine Yagoub",
@@ -42,12 +42,12 @@
     "postpack": "pinst --enable"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "cookie": "^0.6.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "reflect-metadata": "^0.2.2",
-    "tslib": "^2.6.2"
+    "tslib": "^2.6.3"
   },
   "peerDependencies": {
     "@nestjs/common": ">=9.0.0",
