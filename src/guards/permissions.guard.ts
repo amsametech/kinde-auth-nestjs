@@ -3,11 +3,9 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as cookie from 'cookie';
 import { Reflector } from '@nestjs/core';
 import { AbstractGuard } from './abstract.guard';
 import { KindePermissions } from '../decorators/permissions.decorator';
-import { KINDE_ACCESS_TOKEN } from '../lib/kinde.constant';
 
 @Injectable()
 export class PermissionsGuard extends AbstractGuard {
@@ -24,12 +22,7 @@ export class PermissionsGuard extends AbstractGuard {
       if (!permissions) {
         return true;
       }
-      const request = context.switchToHttp().getRequest();
-      const cookies = cookie.parse(request.headers.cookie || '');
-      const decoded = await this.verifyToken(cookies[KINDE_ACCESS_TOKEN]);
-      if (!decoded) {
-        throw new UnauthorizedException();
-      }
+      const decoded = await this.decodeToken(context);
       const userPermissions = decoded['x-hasura-permissions'];
       if (!userPermissions) {
         throw new UnauthorizedException();
@@ -38,9 +31,7 @@ export class PermissionsGuard extends AbstractGuard {
         userPermissions.includes(permission),
       );
     } catch (error) {
-      throw new UnauthorizedException({
-        message: error ? String(error) : 'Unauthorized',
-      });
+      throw new UnauthorizedException();
     }
   }
 }

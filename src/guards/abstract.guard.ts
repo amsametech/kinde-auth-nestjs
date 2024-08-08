@@ -1,9 +1,14 @@
 import jwt from 'jsonwebtoken';
 import JwksClient from 'jwks-rsa';
+import * as cookie from 'cookie';
 import { KindePayload } from '../lib/kinde.interface';
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { getEnvSafely } from '../lib/kinde.factory';
-import { KINDE_DOMAIN_URL } from '../lib/kinde.constant';
+import { KINDE_ACCESS_TOKEN, KINDE_DOMAIN_URL } from '../lib/kinde.constant';
 
 type TokenCallback = (err: Error | null, key?: string) => void;
 
@@ -31,10 +36,11 @@ export abstract class AbstractGuard implements CanActivate {
 
   /**
    * Verifies the given token.
+   *
    * @param token - The token to be verified.
    * @returns A promise that resolves to the decoded token if verification is successful, or rejects with an error if verification fails.
    */
-  protected verifyToken(token?: string): Promise<KindePayload> {
+  private verifyToken(token?: string): Promise<KindePayload> {
     return new Promise((resolve, reject) => {
       if (!token) return reject(new Error('No JWT token provided!'));
       jwt.verify(token, this.getKey, {}, (err, decoded) => {
@@ -42,5 +48,28 @@ export abstract class AbstractGuard implements CanActivate {
         resolve(decoded as KindePayload);
       });
     });
+  }
+
+  /**
+   * Decodes the token from the request.
+   *
+   * @param context - The execution context of the request.
+   * @returns A promise that resolves to the decoded token.
+   */
+  protected async decodeToken(
+    context: ExecutionContext,
+  ): Promise<KindePayload> {
+    const request = context.switchToHttp().getRequest();
+    const cookies = cookie.parse(request.headers.cookie || '');
+    let token = cookies[KINDE_ACCESS_TOKEN] ?? '';
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+    const decoded = await this.verifyToken(token);
+    if (!decoded) {
+      throw new UnauthorizedException();
+    }
+    return decoded;
   }
 }
