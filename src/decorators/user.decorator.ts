@@ -10,19 +10,23 @@ export const KindeUser = createParamDecorator(
     try {
       const request = ctx.switchToHttp().getRequest();
       const cookies = cookie.parse(request.headers.cookie || '');
-      const token = cookies[KINDE_ACCESS_TOKEN] ?? null;
+      let token = cookies[KINDE_ACCESS_TOKEN] ?? '';
+      const authHeader = request.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
       const headers = {
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,
       };
-      const profile = await axios.get(
+      const response = await axios.get(
         `${getEnvSafely(KINDE_DOMAIN_URL)}/oauth2/user_profile`,
         {
           headers,
         },
       );
-      if (profile.status === 200) {
-        return profile.data;
+      if (response.status === 200) {
+        return response.data;
       }
     } catch (error) {
       throw new Error('Error getting user');
