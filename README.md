@@ -2,7 +2,7 @@
   <a href="https://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 <p align="center">
-<h1 align="center"> Kinde Auth NestJs</h1>
+<h1 align="center">Kinde Auth NestJs</h1>
 
 A NestJs Module to validate your [Kinde](https://kinde.com) JSON Web Tokens
 
@@ -21,21 +21,11 @@ npm i @amsame/kinde-auth-nestjs
 ```
 
 - ### Set the environments
-  kinde supports multi-domain authentication where the primary domain is the same, but there are different NestJs services running in different subdomains.
-  For example. service1.yourdomain.com, service2.yourdomain.com, so make sure to set this environment in your kinde SDK
+  To run this module, you will need to set only one environment variable
 
 ```bash
-KINDE_COOKIE_DOMAIN=.yourdomain.com
+KINDE_DOMAIN_URL=https://<your-subdomain>.kinde.com
 ```
-
-To run this module, you will need to add the following environment variables to your NestJs .env file
-
-```bash
-KINDE_DOMAIN=https://<your-subdomain>.kinde.com
-KINDE_AUDIENCE=https://<your-audience>
-```
-
-make sure you set the audience in your kinde SDK, [see here](docs/audience.md)
 
 - ### Load the module
 
@@ -82,7 +72,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @KindeRoles(['admin'])
+  @KindeRoles(['ADMIN'])
   hello() {
       ...
   }
@@ -102,7 +92,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @KindePermissions(['...', '...'])
+  @KindePermissions(['YOUR_PERMISSION_HERE', '...'])
   hello() {
       ...
   }
@@ -120,11 +110,31 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @KindeIsAuth()
   hello(@KindeUser() user: IKindeUser) {
+    console.log(user)
       ...
   }
 }
+```
+
+- ### Graphql Resolver
+
+```ts
+  @Query(() => Post)
+  async findPostById(
+    @Args('id', { type: () => Int }) id: number,
+    @KindeUser() user: IKindeUser,
+  ) {
+    console.log(id, user);
+    return ...;
+  }
+```
+
+kinde supports multi-domain authentication where the primary domain is the same, but there are different NestJs services running in different subdomains.
+For example. service1.yourdomain.com, service2.yourdomain.com, so make sure to set this environment in your kinde SDK
+
+```bash
+KINDE_COOKIE_DOMAIN=.yourdomain.com
 ```
 
 ## License
