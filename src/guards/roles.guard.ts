@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as cookie from 'cookie';
 import { Reflector } from '@nestjs/core';
 import { AbstractGuard } from './abstract.guard';
 import { KindeRoles } from '../decorators/roles.decorator';
@@ -20,21 +19,15 @@ export class RolesGuard extends AbstractGuard {
       if (!roles) {
         return true;
       }
-      const request = context.switchToHttp().getRequest();
-      const cookies = cookie.parse(request.headers.cookie || '');
-      const decoded = await this.verifyToken(cookies['access_token']);
-      if (!decoded) {
-        throw new UnauthorizedException();
-      }
+
+      const decoded = await this.decodeToken(context);
       const userRoles = decoded['x-hasura-roles']?.map((role) => role.name);
       if (!userRoles) {
         throw new UnauthorizedException();
       }
       return roles.some((role) => userRoles.includes(role));
     } catch (error) {
-      throw new UnauthorizedException({
-        message: error ? String(error) : 'Unauthorized',
-      });
+      throw new UnauthorizedException();
     }
   }
 }

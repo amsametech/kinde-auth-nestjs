@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as cookie from 'cookie';
 import { Reflector } from '@nestjs/core';
 import { AbstractGuard } from './abstract.guard';
 import { KindeIsAuth } from '../decorators/auth.decorator';
@@ -20,17 +19,9 @@ export class IsAuthGuard extends AbstractGuard {
       if (!auth) {
         return true;
       }
-      const request = context.switchToHttp().getRequest();
-      const cookies = cookie.parse(request.headers.cookie || '');
-      const decoded = await this.verifyToken(cookies['access_token']);
-      if (!decoded) {
-        throw new UnauthorizedException();
-      }
-      return true;
+      return !!(await this.decodeToken(context));
     } catch (error) {
-      throw new UnauthorizedException({
-        message: error ? String(error) : 'Unauthorized',
-      });
+      throw new UnauthorizedException();
     }
   }
 }

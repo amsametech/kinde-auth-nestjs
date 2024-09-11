@@ -1,22 +1,19 @@
 import jwt from 'jsonwebtoken';
 import JwksClient from 'jwks-rsa';
+import * as cookie from 'cookie';
 import { KindePayload } from '../lib/kinde.interface';
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { getEnvSafely } from '../lib/kinde.factory';
+import { KINDE_ACCESS_TOKEN, KINDE_DOMAIN_URL } from '../lib/kinde.constant';
+import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 
 type TokenCallback = (err: Error | null, key?: string) => void;
 
-const getEnvSafely = (envKey: string) => {
-  const envVal = process.env[envKey];
-  if (!envVal) throw new Error(`Missing env variable ${envKey}!`);
-  return envVal;
-};
-
 export abstract class AbstractGuard implements CanActivate {
-  private readonly AUD: string;
-  constructor() {
-    this.AUD = getEnvSafely('KINDE_AUDIENCE');
-  }
-
   /**
    * Determines if the user is authorized to access a route.
    * @param context - The execution context of the request.
@@ -31,7 +28,7 @@ export abstract class AbstractGuard implements CanActivate {
    */
   private getKey(header: jwt.JwtHeader, callback: TokenCallback) {
     const client = JwksClient({
-      jwksUri: `${getEnvSafely('KINDE_DOMAIN_URL')}/.well-known/jwks`,
+      jwksUri: `${getEnvSafely(KINDE_DOMAIN_URL)}/.well-known/jwks`,
     });
     client.getSigningKey(header.kid, function (err, key) {
       callback(err, key?.getPublicKey());
@@ -40,16 +37,54 @@ export abstract class AbstractGuard implements CanActivate {
 
   /**
    * Verifies the given token.
+   *
    * @param token - The token to be verified.
    * @returns A promise that resolves to the decoded token if verification is successful, or rejects with an error if verification fails.
    */
-  protected verifyToken(token?: string): Promise<KindePayload> {
+  private verifyToken(token?: string): Promise<KindePayload> {
     return new Promise((resolve, reject) => {
       if (!token) return reject(new Error('No JWT token provided!'));
-      jwt.verify(token, this.getKey, { audience: this.AUD }, (err, decoded) => {
+      jwt.verify(token, this.getKey, {}, (err, decoded) => {
         if (err) reject(err);
         resolve(decoded as KindePayload);
       });
     });
+  }
+
+  /**
+   * Decodes the token from the request.
+   *
+   * @param context - The execution context of the request.
+   * @returns A promise that resolves to the decoded token.
+   */
+  protected async decodeToken(
+    context: ExecutionContext,
+  ): Promise<KindePayload> {
+    let request: Request & {
+      headers: { cookie: string; authorization: string };
+    };
+    if (context.getType<GqlContextType>() === 'graphql') {
+      const graphqlCtx = GqlExecutionContext.create(context);
+      request = graphqlCtx.getContext().req;
+    } else {
+      request = context.switchToHttp().getRequest();
+    }
+    if (!request?.headers?.cookie && !request?.headers?.authorization) {
+      throw new Error('Expected either a cookie or authorization header');
+    }
+    const cookies = cookie.parse(request.headers.cookie || '');
+    let token = cookies[KINDE_ACCESS_TOKEN] ?? '';
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+    if (!token) {
+      throw new Error('Expected a token in the cookie or authorization header');
+    }
+    const decoded = await this.verifyToken(token);
+    if (!decoded) {
+      throw new UnauthorizedException();
+    }
+    return decoded;
   }
 }
