@@ -1,6 +1,6 @@
 {
   "name": "@amsame/kinde-auth-nestjs",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Kinde Auth module for NestJS framework",
   "author": {
     "name": "Amine Yagoub",
