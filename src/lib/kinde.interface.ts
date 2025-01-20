@@ -85,3 +85,22 @@ export type IKindeUser = {
   first_name: string;
   picture: string;
 };
+
+export type IKindeUser = {
+  id: string;
+  preferred_email: string;
+  username: string;
+  provided_id: string;
+  last_name: string;
+  first_name: string;
+  picture: string;
+};
+
+export type IKindeRoles = {
+  roles: string[];
+}
+
+export type IKindUserOrganizations = {
+  external_oganization_id: string;
+  organization_id: string;
+}
